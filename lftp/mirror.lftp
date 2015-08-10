@@ -1,0 +1,7 @@
+open -u 'u79011579-ft-user1,*****' host.de
+mirror -v --dry-run --log=/tmp/mirror.log
+!(set -e; FTP_DIR=`pwd`; cd /media/windows-share/; php daff.php -d $FTP_DIR)
+!echo "marker-start" >> lftp.log
+source cls-command.lftp
+!echo "marker-end" >> lftp.log
+!(set -e; FTP_DIR=`pwd`; cd /media/windows-share/; php import.php -d $FTP_DIR)
