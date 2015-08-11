@@ -1,7 +1,21 @@
-open -u 'u79011579-ft-user1,*****' host.de
-mirror -v --dry-run --log=/tmp/mirror.log
-!(set -e; FTP_DIR=`pwd`; cd /media/windows-share/; php daff.php -d $FTP_DIR)
-!echo "marker-start" >> lftp.log
-source cls-command.lftp
-!echo "marker-end" >> lftp.log
-!(set -e; FTP_DIR=`pwd`; cd /media/windows-share/; php import.php -d $FTP_DIR)
+echo "Open Connection ..."
+open -u 'u79011579-ft-user1,Pa$$w0rt' arduino-laden.de
+echo "local PWD"
+lpwd
+!test -e .log || mkdir .log
+!test -e .lftp || mkdir .lftp
+echo "Mirror dry-run ..."
+mirror --dry-run --log=.log/mirror.log
+!test -e .log/cls.log && rm .log/cls.log
+echo "Create CLS Script ,,,"
+!(set -e; FTP_DIR=`pwd`; cd /media/windows-share/; php create_cls_script.php -d $FTP_DIR)
+echo "Execute CLS Script ..."
+source .lftp/cls-command.lftp
+echo "Import Files in DB ... "
+!(set -e; FTP_DIR=`pwd`; cd /media/windows-share/; php import_meta.php -d $FTP_DIR -s arduino-laden.de)
+echo "Fetch Files  ... "
+source .lftp/fetch-commands.lftp
+echo "Update DB with stored files ... "
+!find . -type f -printf '%s\t%p\n' | grep -v '/.log > .log/local_files.log'
+! sed -i 's/\t/ /g' .log/local_files.log
+!(set -e; FTP_DIR=`pwd`; cd /media/windows-share/; php import_files.php -d $FTP_DIR)
